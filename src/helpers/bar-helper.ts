@@ -389,7 +389,8 @@ export const handleTaskBySVGMouseEvent = (
   xStep: number,
   timeStep: number,
   initEventX1Delta: number,
-  rtl: boolean
+  rtl: boolean,
+  rowHeight: number
 ): { isChanged: boolean; changedTask: BarTask } => {
   let result: { isChanged: boolean; changedTask: BarTask };
   switch (selectedTask.type) {
@@ -412,7 +413,8 @@ export const handleTaskBySVGMouseEvent = (
         xStep,
         timeStep,
         initEventX1Delta,
-        rtl
+        rtl,
+        rowHeight
       );
       break;
   }
@@ -428,7 +430,8 @@ const handleTaskBySVGMouseEventForBar = (
   xStep: number,
   timeStep: number,
   initEventX1Delta: number,
-  rtl: boolean
+  rtl: boolean,
+  rowHeight: number
 ): { isChanged: boolean; changedTask: BarTask } => {
   const changedTask: BarTask = { ...selectedTask };
   let isChanged = false;
@@ -518,14 +521,13 @@ const handleTaskBySVGMouseEventForBar = (
       break;
     }
     case "move": {
-      const yMoveStep = 1 // todo: change to rowHeight
       const [newMoveX1, newMoveX2] = moveByX(
         svgX - initEventX1Delta,
         xStep,
         selectedTask
       );
       isChanged = newMoveX1 !== selectedTask.x1;
-      changedTask.y = Math.floor(svgY / yMoveStep) * yMoveStep
+      changedTask.y = svgY
       if (isChanged) {
         changedTask.start = dateByX(
           newMoveX1,
@@ -551,6 +553,8 @@ const handleTaskBySVGMouseEventForBar = (
         );
         changedTask.progressWidth = progressWidth;
         changedTask.progressX = progressX;
+
+        changedTask.rowIndex = Math.round(changedTask.y / rowHeight)
       }
       break;
     }

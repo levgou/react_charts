@@ -93,7 +93,8 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> =
           xStep,
           timeStep,
           initEventX1Delta,
-          rtl
+          rtl,
+          rowHeight
         );
         if (isChanged) {
           setGanttEvent({action: ganttEvent.action, changedTask});
@@ -122,7 +123,8 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> =
           xStep,
           timeStep,
           initEventX1Delta,
-          rtl
+          rtl,
+          rowHeight
         );
 
         const isNotLikeOriginal =
