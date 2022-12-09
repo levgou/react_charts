@@ -2,6 +2,7 @@ import React, { ReactChild } from "react";
 import { Task } from "../../types/public-types";
 import { addToDate } from "../../helpers/date-helper";
 import styles from "./grid.module.css";
+import {MachineTask} from "../../helpers/parsers";
 
 export type GridBodyProps = {
   tasks: Task[];
@@ -22,6 +23,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
   rtl,
 }) => {
   let y = 0;
+  const machines = Array.from(new Set(tasks.map(t => (t as MachineTask).machine))).sort()
   const gridRows: ReactChild[] = [];
   const rowLines: ReactChild[] = [
     <line
@@ -33,10 +35,11 @@ export const GridBody: React.FC<GridBodyProps> = ({
       className={styles.gridRowLine}
     />,
   ];
-  for (const task of tasks) {
+
+  for (const machine of machines) {
     gridRows.push(
       <rect
-        key={"Row" + task.id}
+        key={"Row" + machine + '1'}
         x="0"
         y={y}
         width={svgWidth}
@@ -46,7 +49,7 @@ export const GridBody: React.FC<GridBodyProps> = ({
     );
     rowLines.push(
       <line
-        key={"RowLine" + task.id}
+        key={"RowLine" + machine + '1'}
         x="0"
         y1={y + rowHeight}
         x2={svgWidth}
@@ -54,8 +57,31 @@ export const GridBody: React.FC<GridBodyProps> = ({
         className={styles.gridRowLine}
       />
     );
-    y += rowHeight;
+    gridRows.push(
+      <rect
+        key={"Row" + machine + '2'}
+        x="0"
+        y={y + rowHeight}
+        width={svgWidth}
+        height={rowHeight}
+        className={styles.gridRow}
+      />
+    );
+    rowLines.push(
+      <line
+        key={"RowLine" + machine + '2'}
+        x="0"
+        y1={y + rowHeight * 2}
+        x2={svgWidth}
+        y2={y + rowHeight * 2}
+        className={styles.gridRowLine}
+      />
+    );
+    y += rowHeight * 2;
   }
+
+  // @ts-ignore
+  console.log(rowLines.map(r => r.props.y1))
 
   const now = new Date();
   let tickX = 0;

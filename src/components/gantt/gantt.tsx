@@ -459,8 +459,6 @@ export const Gantt: React.FunctionComponent<GanttProps> =
           tabIndex={0}
           ref={wrapperRef}
         >
-          {/*{listCellWidth && <TaskList {...tableProps} />}*/}
-          {/*todo: add here something in the genre of task list for machine name*/}
           <MachineList {...tableProps} />
           <TaskGantt
             gridProps={gridProps}

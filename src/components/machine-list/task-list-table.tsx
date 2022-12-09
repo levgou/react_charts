@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./task-list-table.module.css";
 import {Task} from "../../types/public-types";
+import {MachineTask} from "../../helpers/parsers";
 
 export const MachineListTable: React.FC<{
   rowHeight: number;
@@ -20,6 +21,8 @@ export const MachineListTable: React.FC<{
         fontSize,
       }) => {
 
+  const machines = Array.from(new Set(tasks.map(t => (t as MachineTask).machine))).sort()
+
   return (
     <div
       className={styles.taskListWrapper}
@@ -28,13 +31,13 @@ export const MachineListTable: React.FC<{
         fontSize: fontSize,
       }}
     >
-      {tasks.map(t => {
+      {machines.map(mac => {
 
         return (
           <div
             className={styles.taskListTableRow}
             style={{height: rowHeight * 2}}
-            key={`${t.id}row`}
+            key={`${mac}row`}
           >
             <div
               className={styles.taskListCell}
@@ -42,11 +45,11 @@ export const MachineListTable: React.FC<{
                 minWidth: rowWidth,
                 maxWidth: rowWidth,
               }}
-              title={t.name}
+              title={mac}
             >
               <div className={styles.taskListNameWrapper}>
                 <div className={styles.taskListEmptyExpander}/>
-                <div>{t.name}</div>
+                <div>{mac}</div>
                 <div className={styles.taskListEmptyExpander}/>
               </div>
             </div>
