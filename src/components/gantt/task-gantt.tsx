@@ -61,12 +61,12 @@ export const TaskGantt: React.FC<TaskGanttProps> = ({
         style={
           ganttHeight
             ? { height: ganttHeight, width: gridProps.svgWidth }
-            : { width: gridProps.svgWidth }
+            : { width: gridProps.svgWidth}
         }
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width={gridProps.svgWidth}
+          width={gridProps.svgWidth }
           height={barProps.rowHeight * machines.length * 2}
           fontFamily={barProps.fontFamily}
           ref={ganttSVGRef}

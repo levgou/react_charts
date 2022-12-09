@@ -80,9 +80,6 @@ export const GridBody: React.FC<GridBodyProps> = ({
     y += rowHeight * 2;
   }
 
-  // @ts-ignore
-  console.log(rowLines.map(r => r.props.y1))
-
   const now = new Date();
   let tickX = 0;
   const ticks: ReactChild[] = [];

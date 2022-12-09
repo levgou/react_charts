@@ -1,90 +1,144 @@
-import React from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import './App.css';
-import {Task} from "./types/public-types";
+import {Task, ViewMode} from "./types/public-types";
 import {Gantt} from "./components/gantt/gantt";
-import {parseGanttJson} from "./helpers/parsers";
+import {parseGanttJson, parseInventoryJson} from "./helpers/parsers";
+// @ts-ignore
+import autocolors from 'chartjs-plugin-autocolors';
+// @ts-ignore
+import Hammer from "hammerjs";
 
-export function initTasks() {
-  const currentDate = new Date();
-  const tasks: Task[] = [
-    {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-      end: new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        2,
-        12,
-        28
-      ),
-      name: "Idea",
-      id: "Task 0",
-      progress: 0,
-      type: "task",
-      project: "ProjectSample",
-      displayOrder: 2,
-      rowIndex: 0,
-    },
-    {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 2),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 4, 0, 0),
-      name: "Research",
-      id: "Task 1",
-      progress: 0,
-      type: "task",
-      project: "ProjectSample",
-      displayOrder: 3,
-      rowIndex: 1,
-    },
-    {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 4),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8, 0, 0),
-      name: "Discussion with team",
-      id: "Task 2",
-      progress: 0,
-      type: "task",
-      project: "ProjectSample",
-      displayOrder: 4,
-      rowIndex: 2,
-    },
-    {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 9, 0, 0),
-      name: "Developing",
-      id: "Task 3",
-      progress: 0,
-      type: "task",
-      project: "ProjectSample",
-      displayOrder: 5,
-      rowIndex: 3,
-    },
-    {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 8),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 10),
-      name: "Review",
-      id: "Task 4",
-      type: "task",
-      progress: 0,
-      project: "ProjectSample",
-      displayOrder: 6,
-      rowIndex: 4,
-    },
-  ];
-  return tasks;
-}
+
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+import Zoom from 'chartjs-plugin-zoom';
+
+import {Line} from 'react-chartjs-2';
+
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Zoom,
+  autocolors
+);
+
 
 function App() {
   const [tasks, setTasks] = React.useState<Task[]>(parseGanttJson());
+  const lineChart = useRef(null);
 
   const handleTaskChange = (task: Task) => {
     let newTasks = tasks.map(t => (t.id === task.id ? task : t));
     setTasks(newTasks);
   };
 
+  const [viewMode, setViewMode] = useState(ViewMode.Day)
+  // @ts-ignore
+  const columnWidth = viewMode === ViewMode.Month ? 500 : viewMode === ViewMode.Week ? 300 : 65
 
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Chart.js Line Chart',
+      },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'x'
+        },
+        zoom: {
+          drag: {
+            enabled: true,
+            mode: 'x',
+            modifierKey: 'shift'
+          },
+        }
+      }
+    },
+  };
+
+  const {labels, mates, mateData} = useMemo(parseInventoryJson, [])
+
+  const datasets = Object.entries(mateData).map(([mate, counts]) => ({
+    label: mate,
+    data: counts,
+  }))
+
+  const data = {
+    labels,
+    datasets
+  }
+
+  const handleResetZoom = () => {
+    if (lineChart.current) {
+      // @ts-ignore
+      lineChart.current.resetZoom()
+    }
+  };
+
+  const hideAll = () => {
+    // @ts-ignore
+    mates.forEach((m, i) => lineChart.current.hide(i))
+  }
+
+  const showAll = () => {
+    // @ts-ignore
+    mates.forEach((m, i) => lineChart.current.show(i))
+  }
 
   return (
     <div className="App">
-      <Gantt tasks={tasks} listCellWidth={"250"} onDateChange={handleTaskChange}/>
+
+      <div style={{
+        marginBottom: 100,
+        display: "block",
+        width: 1000,
+        marginLeft: "auto",
+        marginRight: 'auto',
+      }}>
+        {/*@ts-ignore*/}
+        <Line options={options} data={data} ref={lineChart}/>
+        <p>
+          <i>*Hold shift to zoom on selection</i>
+          <button style={{marginLeft: 30}} onClick={handleResetZoom}>Reset Zoom</button>
+          <button style={{marginLeft: 10}} onClick={hideAll}>Hide All</button>
+          <button style={{marginLeft: 10}} onClick={showAll}>Show All</button>
+
+          <br/>
+          <br/>
+
+          <i>Select time frame: </i>
+          <button onClick={() => setViewMode(ViewMode.Day)} style={{marginLeft: 10}}>Day</button>
+          <button style={{marginLeft: 10}} onClick={() => setViewMode(ViewMode.Week)}>Week</button>
+          <button style={{marginLeft: 10}} onClick={() => setViewMode(ViewMode.Month)}>Month</button>
+        </p>
+      </div>
+      <Gantt
+        tasks={tasks}
+        listCellWidth={"250"}
+        onDateChange={handleTaskChange}
+        viewMode={viewMode}
+        columnWidth={columnWidth}
+      />
     </div>
   );
 }
