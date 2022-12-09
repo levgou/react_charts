@@ -84,7 +84,7 @@ function App() {
 
     return (
         <div className="App">
-            <Gantt tasks={tasks} listCellWidth={""} onDateChange={handleTaskChange}/>
+            <Gantt tasks={tasks} listCellWidth={"250"} onDateChange={handleTaskChange}/>
         </div>
     );
 }
