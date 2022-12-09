@@ -1,6 +1,7 @@
 import ganttData from '../gantt.json'
 import inventoryData from '../inventory.json'
 import {Task} from "../types/public-types";
+import {getWeekNumberISO8601, toMonthName} from "./date-helper";
 
 function dateRangeOverlaps(a_start: Date, a_end: Date, b_start: Date, b_end: Date) {
   if (a_start <= b_start && b_start <= a_end) return true; // b starts in a
@@ -58,16 +59,63 @@ export const parseGanttJson = () => {
 }
 
 export const parseInventoryJson = () => {
-  const labels = Object.keys(inventoryData)
+  const labelsDay = Object.keys(inventoryData)
+
+  const dates = labelsDay.map(d => new Date(d))
   const mates = Array.from(new Set(Object.values(inventoryData).map(dateDate => Object.keys(dateDate)).flat())).sort()
-  const mateData: { [key: string]: number[] } = {}
-  mates.forEach(m => mateData[m] = [])
+
+  const labelsWeek = Array.from(new Set(dates.map(d => getWeekNumberISO8601(d)))).sort()
+  const labelsMonth = Array.from(new Set(dates.map(d => d.getMonth() + 1))).sort().map(toMonthName)
+
+  const mateDataDay: { [key: string]: number[] } = {}
+  const mateDataWeek: { [key: string]: number[] } = {}
+  const mateDataMonth: { [key: string]: number[] } = {}
+
+  const mateDataWeekTmp: { [key: string]: { [key: string]: number } } = {}
+  const mateDataMonthTmp: { [key: string]: { [key: string]: number } } = {}
+
+  mates.forEach(m => {
+    mateDataDay[m] = []
+    mateDataWeek[m] = []
+    mateDataMonth[m] = []
+    mateDataMonthTmp[m] = {}
+    mateDataWeekTmp[m] = {}
+  })
 
   Object.values(inventoryData).forEach(dateData => {
     for (const [mate, count] of Object.entries(dateData)) {
-      mateData[mate].push(count)
+      mateDataDay[mate].push(count)
     }
   })
 
-  return {labels, mates, mateData}
+
+  // use the last value in a week / month as the week / month data
+  Object.entries(inventoryData).forEach(([d, dateData]) => {
+    const date = new Date(d)
+    const week = getWeekNumberISO8601(date)
+    const month = toMonthName(date.getMonth() + 1)
+
+    for (const [mate, count] of Object.entries(dateData)) {
+      mateDataWeekTmp[mate][week] = count
+      mateDataMonthTmp[mate][month] = count
+    }
+  })
+
+  mates.forEach(m => {
+    labelsWeek.forEach(w => mateDataWeek[m].push(mateDataWeekTmp[m][w]))
+    labelsMonth.forEach(month => mateDataMonth[m].push(mateDataMonthTmp[m][month]))
+  })
+
+  // to center month data if we have 1 month
+  if (labelsMonth.length === 1) {
+    labelsMonth.unshift('')
+    labelsMonth.push('')
+
+    Object.values(mateDataMonth).forEach(mateData => {
+      mateData.unshift(NaN)
+      mateData.push(NaN)
+    })
+  }
+
+  return {labelsDay, labelsWeek, labelsMonth, mates, mateDataDay, mateDataWeek, mateDataMonth, dates}
 }

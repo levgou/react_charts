@@ -1,4 +1,4 @@
-import { Task, ViewMode } from "../types/public-types";
+import {Task, ViewMode} from "../types/public-types";
 import DateTimeFormatOptions = Intl.DateTimeFormatOptions;
 import DateTimeFormat = Intl.DateTimeFormat;
 
@@ -11,7 +11,7 @@ type DateHelperScales =
   | "second"
   | "millisecond";
 
-const intlDTCache: {[key: string]: DateTimeFormat} = {};
+const intlDTCache: { [key: string]: DateTimeFormat } = {};
 export const getCachedDateTimeFormat = (
   locString: string | string[],
   opts: DateTimeFormatOptions = {}
@@ -41,6 +41,15 @@ export const addToDate = (
   );
   return newDate;
 };
+
+export const toMonthName = (monthNumber: number) => {
+  const date = new Date();
+  date.setMonth(monthNumber - 1);
+
+  return date.toLocaleString('en-US', {
+    month: 'long',
+  });
+}
 
 export const startOfDate = (date: Date, scale: DateHelperScales) => {
   const scores = [

@@ -9,20 +9,12 @@ import autocolors from 'chartjs-plugin-autocolors';
 import Hammer from "hammerjs";
 
 
-import {
-  Chart,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import {CategoryScale, Chart, Legend, LinearScale, LineElement, PointElement, Title, Tooltip,} from 'chart.js';
 
 import Zoom from 'chartjs-plugin-zoom';
 
 import {Line} from 'react-chartjs-2';
+import {getWeekNumberISO8601, toMonthName} from "./helpers/date-helper";
 
 Chart.register(
   CategoryScale,
@@ -35,6 +27,32 @@ Chart.register(
   Zoom,
   autocolors
 );
+
+const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'top' as const,
+    },
+    title: {
+      display: true,
+      text: 'Inventory',
+    },
+    zoom: {
+      pan: {
+        enabled: true,
+        mode: 'x'
+      },
+      zoom: {
+        drag: {
+          enabled: true,
+          mode: 'x',
+          modifierKey: 'shift'
+        },
+      }
+    }
+  },
+};
 
 
 function App() {
@@ -49,42 +67,27 @@ function App() {
   const [viewMode, setViewMode] = useState(ViewMode.Day)
   // @ts-ignore
   const columnWidth = viewMode === ViewMode.Month ? 500 : viewMode === ViewMode.Week ? 300 : 65
+  const {
+    labelsDay,
+    labelsWeek,
+    labelsMonth,
+    mates,
+    mateDataDay,
+    mateDataWeek,
+    mateDataMonth,
+    dates
+  } = useMemo(parseInventoryJson, [])
 
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Chart.js Line Chart',
-      },
-      zoom: {
-        pan: {
-          enabled: true,
-          mode: 'x'
-        },
-        zoom: {
-          drag: {
-            enabled: true,
-            mode: 'x',
-            modifierKey: 'shift'
-          },
-        }
-      }
-    },
-  };
+  const [chartLabels, setChartLabels] = useState(labelsDay)
+  const [chartMateData, setChartMateDate] = useState(mateDataDay)
 
-  const {labels, mates, mateData} = useMemo(parseInventoryJson, [])
-
-  const datasets = Object.entries(mateData).map(([mate, counts]) => ({
+  const datasets = Object.entries(chartMateData).map(([mate, counts]) => ({
     label: mate,
     data: counts,
   }))
 
   const data = {
-    labels,
+    labels: chartLabels,
     datasets
   }
 
@@ -103,6 +106,22 @@ function App() {
   const showAll = () => {
     // @ts-ignore
     mates.forEach((m, i) => lineChart.current.show(i))
+  }
+
+  const onTimeFrameChange = (viewMode: ViewMode) => {
+    setViewMode(viewMode)
+    if (viewMode === ViewMode.Week) {
+      setChartLabels(labelsWeek)
+      setChartMateDate(mateDataWeek)
+    } else if (viewMode === ViewMode.Month) {
+      console.log(mateDataMonth)
+      setChartLabels(labelsMonth)
+      setChartMateDate(mateDataMonth)
+    } else {
+      setChartLabels(labelsDay)
+      setChartMateDate(mateDataDay)
+    }
+    handleResetZoom()
   }
 
   return (
@@ -127,9 +146,9 @@ function App() {
           <br/>
 
           <i>Select time frame: </i>
-          <button onClick={() => setViewMode(ViewMode.Day)} style={{marginLeft: 10}}>Day</button>
-          <button style={{marginLeft: 10}} onClick={() => setViewMode(ViewMode.Week)}>Week</button>
-          <button style={{marginLeft: 10}} onClick={() => setViewMode(ViewMode.Month)}>Month</button>
+          <button onClick={() => onTimeFrameChange(ViewMode.Day)} style={{marginLeft: 10}}>Day</button>
+          <button style={{marginLeft: 10}} onClick={() => onTimeFrameChange(ViewMode.Week)}>Week</button>
+          <button style={{marginLeft: 10}} onClick={() => onTimeFrameChange(ViewMode.Month)}>Month</button>
         </p>
       </div>
       <Gantt
