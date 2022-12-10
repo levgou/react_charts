@@ -158,6 +158,7 @@ function App() {
         viewMode={viewMode}
         columnWidth={columnWidth}
       />
+      <i>* Repo:</i> <a href={'https://github.com/levgou/react_charts/tree/master'}>https://github.com/levgou/react_charts/tree/master</a>
     </div>
   );
 }

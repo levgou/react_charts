@@ -1,46 +1,32 @@
-# Getting Started with Create React App
+# React Frontend Challenge
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### https://levgou.github.io/react_charts/
 
-## Available Scripts
+## Lev Gourevitch - [lev.gourevitch@gamil.com](lev.gourevitch@gamil.com)
 
-In the project directory, you can run:
+## Setup:
+* Tasks done: all including bonus
+* Libraries used - 
+  * `chart.js` - for the line chart
+  * `gantt-task-react` - copied into the project and hacked to achieve the needed functionality
+  * `gh-pages` - to deploy to github pages
+* Remarks:
+  1. I used the most basic design, and mostly stayed with out of the box  what was provided by the libraries
+  2. I didnt cover edge cases, and made some assumption to reduce the scope of the assignment 
 
-### `npm start`
+## Challenges:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Gantt chart
+The Gantt  had a very specific spec, which I couldnt achieve with any of the main stream libraries i have found,
+so i chose to use the library which enabled most of the used cases, but the one of multiple tasks per actor.
+To achieve the need functionality I changed the library directly to fit my needs, mostly in a non-generic 
+and very use case specific way (to reduce scope). I think that in this method I was able to achieve the 
+given task in a timely manner, and to build on top of other peoples work. 
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
-### `npm test`
+### Line Graph:
+The line graph had the specific use case of changing the time frame - which in contrary to the Gantt, 
+I had to choose what to display. As the graph displays inventory I went with displaying the inventory 
+at the end of the period. To achieve this I had to generate multiple data sets from the provided one, which 
+hold the values in accordance to the required time frame.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
